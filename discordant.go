@@ -120,22 +120,28 @@ func (d *Discordant) Run() {
 	d.AddHandler(d.commandHandler)
 }
 
+// ID returns stored bot id.
 func (d *Discordant) ID() string {
 	return d.id
 }
 
+// Session returns discord Session.
 func (d *Discordant) Session() *discordgo.Session {
 	return d.session.Session
 }
 
+// Commands returns commands list.
 func (d *Discordant) Commands() map[string]Command {
 	return d.commands
 }
 
+// AddHandler allows you to add an event handler that will be fired anytime
+// the Discord WSAPI event that matches the function fires.
 func (d *Discordant) AddHandler(handler interface{}) func() {
 	return d.session.AddHandler(handler)
 }
 
+// NewContext creates new Context.
 func (d *Discordant) NewContext(message *discordgo.MessageCreate, command *Command) Context {
 	return &context{
 		command:    command,
@@ -144,16 +150,19 @@ func (d *Discordant) NewContext(message *discordgo.MessageCreate, command *Comma
 	}
 }
 
+// ADMIN adds route handler to admin channel.
 func (d *Discordant) ADMIN(name string, handler HandlerFunc, options ...CommandOption) {
 	options = append(options, MiddlewareAccess(ChannelAdmin, ChannelTest))
 	d.Add(name, handler, options...)
 }
 
+// ALL adds route handler to any channel.
 func (d *Discordant) ALL(name string, handler HandlerFunc, options ...CommandOption) {
 	options = append(options, MiddlewareAccess(ChannelAdmin, ChannelTest, ChannelGeneral))
 	d.Add(name, handler, options...)
 }
 
+// Add adds route handler.
 func (d *Discordant) Add(name string, handler HandlerFunc, options ...CommandOption) {
 	command := Command{
 		action: handler,
@@ -166,6 +175,7 @@ func (d *Discordant) Add(name string, handler HandlerFunc, options ...CommandOpt
 	d.commands[name] = command
 }
 
+// GetCommand returns command by received message.
 func (d *Discordant) GetCommand(message string) (*Command, error) {
 	if command, ok := d.commands[message]; ok {
 		// Command without args.
@@ -191,6 +201,7 @@ func (d *Discordant) GetCommand(message string) (*Command, error) {
 	return nil, ErrCommandNotFound
 }
 
+// CheckAccess returns true if access is allowed.
 func (d *Discordant) CheckAccess(id string, channels ...string) bool {
 	for _, channel := range channels {
 		if id == d.config.Channels[channel] {
