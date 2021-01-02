@@ -56,6 +56,7 @@ func (c *context) Send(msg string, params ...string) error {
 	// Send normal message.
 	if len([]rune(msg)) <= 1990 {
 		_, err := c.discordant.session.ChannelMessageSend(c.request.ChannelID, msg)
+
 		return err
 	}
 

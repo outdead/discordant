@@ -17,11 +17,11 @@ type Session struct {
 func NewSession(token string) (*Session, error) {
 	session, err := discordgo.New("Bot " + token)
 	if err != nil {
-		return nil, fmt.Errorf("error creating discord session: %s", err)
+		return nil, fmt.Errorf("discord: create session: %w", err)
 	}
 
 	if err := session.Open(); err != nil {
-		return nil, fmt.Errorf("open connection to discord error: %s", err)
+		return nil, fmt.Errorf("discord: open connection: %w", err)
 	}
 
 	return &Session{session, true}, nil

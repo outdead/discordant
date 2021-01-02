@@ -27,7 +27,7 @@ type defaultLog struct {
 	*log.Logger
 }
 
-func NewDefaultLog() *defaultLog {
+func NewDefaultLog() Logger {
 	return &defaultLog{Logger: log.New(os.Stderr, "discordant ", log.LstdFlags)}
 }
 

@@ -36,6 +36,9 @@ var (
 	// ErrEmptyToken is returned when discord bot token is empty with enabled hook.
 	ErrEmptyToken = errors.New("discord bot token is empty")
 
+	// ErrEmptyPrefix is returned when discord bot prefix is empty.
+	ErrEmptyPrefix = errors.New("discord bot prefix is empty")
+
 	// ErrEmptyChannelID is returned when discord channel id is empty with enabled hook.
 	ErrEmptyChannelID = errors.New("discord channel id is empty")
 
@@ -91,7 +94,8 @@ func New(cfg *Config, options ...Option) (*Discordant, error) {
 	user, err := d.session.User("@me")
 	if err != nil {
 		_ = d.Close()
-		return nil, fmt.Errorf("error retrieving discord bot account: %s", err)
+
+		return nil, fmt.Errorf("discordant: retrieve bot account: %w", err)
 	}
 
 	d.id = user.ID
@@ -103,7 +107,7 @@ func New(cfg *Config, options ...Option) (*Discordant, error) {
 func (d *Discordant) Close() error {
 	if d.session != nil {
 		if err := d.session.Close(); err != nil {
-			return fmt.Errorf("close connection to discord error: %s", err)
+			return fmt.Errorf("discordant: close connection: %w", err)
 		}
 	}
 
@@ -177,8 +181,8 @@ func (d *Discordant) Add(name string, handler HandlerFunc, options ...CommandOpt
 
 // GetCommand returns command by received message.
 func (d *Discordant) GetCommand(message string) (*Command, error) {
+	// Command without args.
 	if command, ok := d.commands[message]; ok {
-		// Command without args.
 		return &command, nil
 	}
 
@@ -226,6 +230,7 @@ func (d *Discordant) commandHandler(session *discordgo.Session, message *discord
 	// Unknown channel. Do nothing.
 	if !d.CheckAccess(message.ChannelID, ChannelAdmin, ChannelTest, ChannelGeneral) {
 		d.logger.Debugf("unknown channel %s", message.ChannelID)
+
 		return
 	}
 
@@ -235,11 +240,13 @@ func (d *Discordant) commandHandler(session *discordgo.Session, message *discord
 	command, err := d.GetCommand(content)
 	if err != nil {
 		d.logger.Debug(err)
+
 		return
 	}
 
 	if ok := d.CheckAccess(message.ChannelID, command.Access...); !ok {
 		d.logger.Debugf("access to command '%s' denied", command.Name)
+
 		return
 	}
 
