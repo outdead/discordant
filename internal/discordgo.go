@@ -12,7 +12,7 @@ type Session struct {
 	owner bool
 }
 
-// New creates a new Discord session and will automate some startup
+// NewSession creates a new Discord session and will automate some startup
 // tasks if given enough information to do so.
 func NewSession(token string) (*Session, error) {
 	session, err := discordgo.New("Bot " + token)

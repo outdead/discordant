@@ -27,6 +27,7 @@ type defaultLog struct {
 	*log.Logger
 }
 
+// NewDefaultLog creates and returns default logger to stderr.
 func NewDefaultLog() Logger {
 	return &defaultLog{Logger: log.New(os.Stderr, "discordant ", log.LstdFlags)}
 }
