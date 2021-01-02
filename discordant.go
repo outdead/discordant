@@ -87,7 +87,7 @@ func New(cfg *Config, options ...Option) (*Discordant, error) {
 	if d.session == nil {
 		var err error
 		if d.session, err = internal.NewSession(cfg.Token); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("discordant: %w", err)
 		}
 	}
 

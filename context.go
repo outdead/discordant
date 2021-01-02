@@ -3,6 +3,7 @@ package discordant
 import (
 	"bufio"
 	"bytes"
+	"fmt"
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
@@ -55,9 +56,11 @@ func (c *context) ChannelID() string {
 func (c *context) Send(msg string, params ...string) error {
 	// Send normal message.
 	if len([]rune(msg)) <= 1990 {
-		_, err := c.discordant.session.ChannelMessageSend(c.request.ChannelID, msg)
+		if _, err := c.discordant.session.ChannelMessageSend(c.request.ChannelID, msg); err != nil {
+			return fmt.Errorf("discordant context: %w", err)
+		}
 
-		return err
+		return nil
 	}
 
 	// Message is too big. Attach as file.
@@ -73,14 +76,16 @@ func (c *context) Send(msg string, params ...string) error {
 	}
 
 	if _, err := buf.Write([]byte(msg)); err != nil {
-		return err
+		return fmt.Errorf("discordant context: %w", err)
 	}
 
 	ms := &discordgo.MessageSend{Files: []*discordgo.File{
 		{Name: fileName, Reader: bufio.NewReader(&buf)},
 	}}
 
-	_, err := c.discordant.session.ChannelMessageSendComplex(c.request.ChannelID, ms)
+	if _, err := c.discordant.session.ChannelMessageSendComplex(c.request.ChannelID, ms); err != nil {
+		return fmt.Errorf("discordant context: %w", err)
+	}
 
-	return err
+	return nil
 }
