@@ -120,6 +120,7 @@ linters:
   enable-all: true
   disable:
     - gomnd
+    - wrapcheck
 
 issues:
   exclude:
