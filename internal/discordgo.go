@@ -20,6 +20,8 @@ func NewSession(token string) (*Session, error) {
 		return nil, fmt.Errorf("discord: create session: %w", err)
 	}
 
+	session.Identify.Intents = discordgo.MakeIntent(discordgo.IntentsAll)
+
 	if err := session.Open(); err != nil {
 		return nil, fmt.Errorf("discord: open connection: %w", err)
 	}
