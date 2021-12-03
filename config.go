@@ -9,10 +9,6 @@ type Config struct {
 
 // Validate checks required fields and validates for allowed values.
 func (cfg *Config) Validate() error {
-	if cfg.Token == "" {
-		return ErrEmptyToken
-	}
-
 	if cfg.Prefix == "" {
 		return ErrEmptyPrefix
 	}
