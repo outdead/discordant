@@ -12,9 +12,7 @@ import (
 // Channel types.
 const (
 	ChannelAdmin   = "admin"
-	ChannelTest    = "test"
 	ChannelGeneral = "general"
-	ChannelLogs    = "notify"
 )
 
 // Defaults.
@@ -63,8 +61,8 @@ type Discordant struct {
 }
 
 // New creates a new Discord session and will automate some startup
-// tasks if given enough information to do so.  Currently you can pass zero
-// arguments and it will return an empty Discord session.
+// tasks if given enough information to do so. Currently, you can pass zero
+// arguments, and it will return an empty Discord session.
 func New(cfg *Config, options ...Option) (*Discordant, error) {
 	d := Discordant{
 		config:   cfg,
@@ -156,13 +154,19 @@ func (d *Discordant) NewContext(message *discordgo.MessageCreate, command *Comma
 
 // ADMIN adds route handler to admin channel.
 func (d *Discordant) ADMIN(name string, handler HandlerFunc, options ...CommandOption) {
-	options = append(options, MiddlewareAccess(ChannelAdmin, ChannelTest))
+	options = append(options, MiddlewareAccess(ChannelAdmin))
+	d.Add(name, handler, options...)
+}
+
+// GENERAL adds route handler to general channel.
+func (d *Discordant) GENERAL(name string, handler HandlerFunc, options ...CommandOption) {
+	options = append(options, MiddlewareAccess(ChannelGeneral))
 	d.Add(name, handler, options...)
 }
 
 // ALL adds route handler to any channel.
 func (d *Discordant) ALL(name string, handler HandlerFunc, options ...CommandOption) {
-	options = append(options, MiddlewareAccess(ChannelAdmin, ChannelTest, ChannelGeneral))
+	options = append(options, MiddlewareAccess(ChannelAdmin, ChannelGeneral))
 	d.Add(name, handler, options...)
 }
 
@@ -228,7 +232,7 @@ func (d *Discordant) commandHandler(session *discordgo.Session, message *discord
 	}
 
 	// Unknown channel. Do nothing.
-	if !d.CheckAccess(message.ChannelID, ChannelAdmin, ChannelTest, ChannelGeneral) {
+	if !d.CheckAccess(message.ChannelID, ChannelAdmin, ChannelGeneral) {
 		d.logger.Debugf("unknown channel %s", message.ChannelID)
 
 		return

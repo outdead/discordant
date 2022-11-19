@@ -9,6 +9,9 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+// discordMaxMessageLenValidate max discord message length for internal validation.
+const discordMaxMessageLenValidate = 1990
+
 // Context is an interface represents the context of the current Discord command.
 type Context interface {
 	Command() *Command
@@ -55,7 +58,7 @@ func (c *context) ChannelID() string {
 // 3. Embed - beautiful.
 func (c *context) Send(msg string, params ...string) error {
 	// Send normal message.
-	if len([]rune(msg)) <= 1990 {
+	if len([]rune(msg)) <= discordMaxMessageLenValidate {
 		if _, err := c.discordant.session.ChannelMessageSend(c.request.ChannelID, msg); err != nil {
 			return fmt.Errorf("discordant context: %w", err)
 		}
