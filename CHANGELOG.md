@@ -8,15 +8,13 @@ All notable changes to this project will be documented in this file.
 ## [v0.1.3] - 2022-11-20
 ### Added
 - Added changelog
-
-## [v0.1.2] - 2021-12-03
-### Added
 - Added GENERAL router register
 
 ### Updated
 - Updated Golang version to 1.19
 - Updated golangci linter to 1.50.1 version
 
+## [v0.1.2] - 2021-12-03
 ### Removed
 - Removed token required validation
 - Remove test channel constant
