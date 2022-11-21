@@ -174,7 +174,7 @@ func (d *Discordant) GENERAL(name string, handler HandlerFunc, options ...Comman
 
 // ALL adds route handler to any channel.
 func (d *Discordant) ALL(name string, handler HandlerFunc, options ...CommandOption) {
-	options = append(options, MiddlewareAccess(ChannelGeneral, ChannelAdmin))
+	options = append(options, MiddlewareAccess(d.commandsAccessOrder...))
 	d.Add(name, handler, options...)
 }
 

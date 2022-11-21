@@ -5,9 +5,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [v0.2.2] - 2022-11-21
+### Fixed
+- Fixed ALL access router. Custom permission now can be added with this route
+
 ## [v0.2.1] - 2022-11-21
 ### Added
-- Added `access_order` param to config. Use it to specify order of channels to command access. Rights are listed in ascending order. The smallest rights come first, then the largest. You can keep it empty to use default order.
+- Added `access_order` param to config. Use it to specify order of channels to command access. Rights are listed in ascending order. The smallest rights come first, then the largest. You can keep it empty to use default order
 
 ## [v0.2.0] - 2022-11-21
 ### Changed
@@ -35,7 +39,8 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Initial implementation
 
-[Unreleased]: https://github.com/outdead/discordant/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/outdead/discordant/compare/v0.2.2...HEAD
+[v0.2.2]: https://github.com/outdead/discordant/compare/v0.2.1...v0.2.2
 [v0.2.1]: https://github.com/outdead/discordant/compare/v0.2.0...v0.2.1
 [v0.2.0]: https://github.com/outdead/discordant/compare/v0.1.3...v0.2.0
 [v0.1.3]: https://github.com/outdead/discordant/compare/v0.1.2...v0.1.3
