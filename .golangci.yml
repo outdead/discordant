@@ -139,6 +139,7 @@ linters-settings:
       - err
       - to
       - db
+      - id
     # Optional list of variable declarations that should be ignored completely. (defaults to empty list)
     # Entries must be in one of the following forms (see below for examples):
     # - for variables, parameters, named return values, method receivers, or type parameters:

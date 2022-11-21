@@ -211,6 +211,10 @@ func (d *Discordant) GetCommand(message string) (*Command, error) {
 
 // CheckAccess returns true if access is allowed.
 func (d *Discordant) CheckAccess(id string, channels ...string) bool {
+	if len(channels) == 0 {
+		return true
+	}
+
 	for _, channel := range channels {
 		if id == d.config.Channels[channel] {
 			return true
@@ -231,11 +235,13 @@ func (d *Discordant) commandHandler(session *discordgo.Session, message *discord
 		return
 	}
 
-	// Unknown channel. Do nothing.
-	if !d.CheckAccess(message.ChannelID, ChannelAdmin, ChannelGeneral) {
-		d.logger.Debugf("unknown channel %s", message.ChannelID)
+	if d.config.Safemode {
+		// Unknown channel. Do nothing.
+		if !d.CheckAccess(message.ChannelID, ChannelAdmin, ChannelGeneral) {
+			d.logger.Debugf("unknown channel %s", message.ChannelID)
 
-		return
+			return
+		}
 	}
 
 	// Remove prefix from discord message.
@@ -249,7 +255,7 @@ func (d *Discordant) commandHandler(session *discordgo.Session, message *discord
 	}
 
 	if ok := d.CheckAccess(message.ChannelID, command.Access...); !ok {
-		d.logger.Debugf("access to command '%s' denied", command.Name)
+		d.logger.Debugf("access to command \"%s\" denied", command.Name)
 
 		return
 	}

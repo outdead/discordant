@@ -4,6 +4,7 @@ package discordant
 type Config struct {
 	Token    string            `json:"token" yaml:"token"`
 	Prefix   string            `json:"prefix" yaml:"prefix"`
+	Safemode bool              `json:"safemode" yaml:"safemode"`
 	Channels map[string]string `json:"channels" yaml:"channels"`
 }
 

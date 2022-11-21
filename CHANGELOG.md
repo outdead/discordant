@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [v0.2.0] - 2022-11-21
+### Changed
+- Function commandHandler doesn't check default permissions anymore. It checks only selected command permissions. Added `safemode` param to config to keep old behavior. 
+
 ## [v0.1.3] - 2022-11-20
 ### Added
 - Added changelog
@@ -27,7 +31,8 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Initial implementation
 
-[Unreleased]: https://github.com/outdead/discordant/compare/v0.1.3...HEAD
+[Unreleased]: https://github.com/outdead/discordant/compare/v0.2.0...HEAD
+[v0.2.0]: https://github.com/outdead/discordant/compare/v0.1.3...v0.2.0
 [v0.1.3]: https://github.com/outdead/discordant/compare/v0.1.2...v0.1.3
 [v0.1.2]: https://github.com/outdead/discordant/compare/v0.1.1...v0.1.2
 [v0.1.1]: https://github.com/outdead/discordant/compare/v0.1.0...v0.1.1
