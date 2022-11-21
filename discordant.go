@@ -66,9 +66,10 @@ type Discordant struct {
 // arguments, and it will return an empty Discord session.
 func New(cfg *Config, options ...Option) (*Discordant, error) {
 	d := Discordant{
-		config:   cfg,
-		logger:   NewDefaultLog(),
-		commands: make(map[string]Command),
+		config:              cfg,
+		logger:              NewDefaultLog(),
+		commands:            make(map[string]Command),
+		commandsAccessOrder: make([]string, len(cfg.AccessOrder)),
 	}
 
 	if err := cfg.Validate(); err != nil {
