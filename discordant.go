@@ -53,11 +53,12 @@ type HandlerFunc func(Context) error
 
 // Discordant represents a connection to the Discord API.
 type Discordant struct {
-	config   *Config
-	id       string
-	session  *internal.Session
-	logger   Logger
-	commands map[string]Command
+	config              *Config
+	id                  string
+	session             *internal.Session
+	logger              Logger
+	commands            map[string]Command
+	commandsAccessOrder []string
 }
 
 // New creates a new Discord session and will automate some startup
@@ -97,6 +98,12 @@ func New(cfg *Config, options ...Option) (*Discordant, error) {
 	}
 
 	d.id = user.ID
+
+	if len(d.config.AccessOrder) == 0 {
+		d.commandsAccessOrder = []string{ChannelGeneral, ChannelAdmin}
+	} else {
+		copy(d.commandsAccessOrder, d.config.AccessOrder)
+	}
 
 	return &d, nil
 }
@@ -166,7 +173,7 @@ func (d *Discordant) GENERAL(name string, handler HandlerFunc, options ...Comman
 
 // ALL adds route handler to any channel.
 func (d *Discordant) ALL(name string, handler HandlerFunc, options ...CommandOption) {
-	options = append(options, MiddlewareAccess(ChannelAdmin, ChannelGeneral))
+	options = append(options, MiddlewareAccess(ChannelGeneral, ChannelAdmin))
 	d.Add(name, handler, options...)
 }
 
@@ -179,6 +186,8 @@ func (d *Discordant) Add(name string, handler HandlerFunc, options ...CommandOpt
 	for _, option := range options {
 		option(&command)
 	}
+
+	d.fixCommandAccess(&command)
 
 	d.commands[name] = command
 }
@@ -237,7 +246,7 @@ func (d *Discordant) commandHandler(session *discordgo.Session, message *discord
 
 	if d.config.Safemode {
 		// Unknown channel. Do nothing.
-		if !d.CheckAccess(message.ChannelID, ChannelAdmin, ChannelGeneral) {
+		if !d.CheckAccess(message.ChannelID, ChannelGeneral, ChannelAdmin) {
 			d.logger.Debugf("unknown channel %s", message.ChannelID)
 
 			return
@@ -269,4 +278,24 @@ func (d *Discordant) commandHandler(session *discordgo.Session, message *discord
 			d.logger.Errorf("send fail response error: %s", err)
 		}
 	}
+}
+
+func (d *Discordant) fixCommandAccess(command *Command) {
+	buf := make(map[string]struct{}, len(d.commandsAccessOrder))
+
+	access := make([]string, 0, len(d.commandsAccessOrder))
+
+	for _, channel := range command.Access {
+		if _, ok := buf[channel]; !ok {
+			buf[channel] = struct{}{}
+		}
+	}
+
+	for _, channel := range d.commandsAccessOrder {
+		if _, ok := buf[channel]; ok {
+			access = append(access, channel)
+		}
+	}
+
+	command.Access = access
 }

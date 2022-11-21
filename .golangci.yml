@@ -77,6 +77,12 @@ linters-settings:
     #  - github.com/sirupsen/logrus: "logging is allowed only by logutils"
   lll:
     line-length: 120 # 120 is default
+  tagliatelle:
+    case:
+      use-field-name: true
+      rules:
+        json: snake
+        yaml: snake
   maligned:
     # print struct with more effective memory layout or not, false by default
     suggest-new: true

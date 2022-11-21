@@ -16,7 +16,7 @@ type CommandOption func(*Command)
 // MiddlewareAccess adds access levels.
 func MiddlewareAccess(access ...string) CommandOption {
 	return func(c *Command) {
-		c.Access = access
+		c.Access = append(c.Access, access...)
 	}
 }
 
