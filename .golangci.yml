@@ -183,6 +183,10 @@ linters:
     - sqlclosecheck # is disabled because of generics
     - structcheck # is disabled because of generics
     - wastedassign # is disabled because of generics
+    - exhaustruct # mad linter
+    - depguard # mad linter
+    - tagalign
+    - mirror
     - wrapcheck
     - ireturn
     - interfacebloat

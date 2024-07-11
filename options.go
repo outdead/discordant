@@ -2,16 +2,16 @@ package discordant
 
 import (
 	"github.com/bwmarrin/discordgo"
-	"github.com/outdead/discordant/internal"
+	"github.com/outdead/discordant/internal/session"
 )
 
-// Option can be used to a create a customized connections.
+// Option can be used to create a customized connections.
 type Option func(d *Discordant)
 
 // SetSession sets discordgo session to Discordant.
-func SetSession(session *discordgo.Session) Option {
+func SetSession(ses *discordgo.Session) Option {
 	return func(d *Discordant) {
-		d.session = &internal.Session{Session: session}
+		d.session = &session.Session{Session: ses}
 	}
 }
 

@@ -1,4 +1,4 @@
-package internal
+package session
 
 import (
 	"fmt"
@@ -12,9 +12,9 @@ type Session struct {
 	owner bool
 }
 
-// NewSession creates a new Discord session and will automate some startup
+// New creates a new Discord session and will automate some startup
 // tasks if given enough information to do so.
-func NewSession(token string) (*Session, error) {
+func New(token string) (*Session, error) {
 	session, err := discordgo.New("Bot " + token)
 	if err != nil {
 		return nil, fmt.Errorf("discord: create session: %w", err)

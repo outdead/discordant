@@ -18,6 +18,8 @@ type Context interface {
 	Discordant() *Discordant
 	Request() *discordgo.MessageCreate
 	ChannelID() string
+	QueryString() string
+	QueryParams() ([]string, error)
 	Send(msg string, params ...string) error
 }
 
@@ -47,6 +49,92 @@ func (c *context) ChannelID() string {
 	return c.request.ChannelID
 }
 
+// QueryString returns the URL query string.
+func (c *context) QueryString() string {
+	return c.Command().Arg
+}
+
+// QueryParams returns the query parameters as slice.
+func (c *context) QueryParams() ([]string, error) { //nolint: gocyclo, cyclop, gocognit, funlen, gocritic // indivisible
+	query := c.Command().Arg
+
+	var args []string
+
+	const StateStart = "start"
+	const StateQuotes = "quotes"
+	const StateArg = "arg"
+
+	state := StateStart
+	current := ""
+	quote := "\""
+	escapeNext := true
+
+	for i, command := range query {
+		if i == 0 && string(command) == `"` {
+			escapeNext = false
+		}
+
+		if state == StateQuotes {
+			if string(command) != quote {
+				current += string(command)
+			} else {
+				args = append(args, current)
+				current = ""
+				state = StateStart
+			}
+
+			continue
+		}
+
+		if escapeNext {
+			current += string(command)
+			escapeNext = false
+
+			continue
+		}
+
+		if command == '\\' {
+			escapeNext = true
+
+			continue
+		}
+
+		if command == '"' || command == '\'' {
+			state = StateQuotes
+			quote = string(command)
+
+			continue
+		}
+
+		if state == StateArg {
+			if command == ' ' || command == '\t' {
+				args = append(args, current)
+				current = ""
+				state = StateStart
+			} else {
+				current += string(command)
+			}
+
+			continue
+		}
+
+		if command != ' ' && command != '\t' {
+			state = StateArg
+			current += string(command)
+		}
+	}
+
+	if state == StateQuotes {
+		return []string{}, fmt.Errorf("%w: %s", ErrUnclosedQuote, query)
+	}
+
+	if current != "" {
+		args = append(args, current)
+	}
+
+	return args, nil
+}
+
 // Send sends message to discord channel.
 // TODO: Add the option of posting to Discord channel.
 // That is, what to do with messages that more than 2000 characters.
@@ -60,7 +148,7 @@ func (c *context) Send(msg string, params ...string) error {
 	// Send normal message.
 	if len([]rune(msg)) <= discordMaxMessageLenValidate {
 		if _, err := c.discordant.session.ChannelMessageSend(c.request.ChannelID, msg); err != nil {
-			return fmt.Errorf("discordant context: %w", err)
+			return fmt.Errorf("discordant send: %w", err)
 		}
 
 		return nil
@@ -79,7 +167,7 @@ func (c *context) Send(msg string, params ...string) error {
 	}
 
 	if _, err := buf.Write([]byte(msg)); err != nil {
-		return fmt.Errorf("discordant context: %w", err)
+		return fmt.Errorf("discordant send: %w", err)
 	}
 
 	ms := &discordgo.MessageSend{Files: []*discordgo.File{
@@ -87,7 +175,7 @@ func (c *context) Send(msg string, params ...string) error {
 	}}
 
 	if _, err := c.discordant.session.ChannelMessageSendComplex(c.request.ChannelID, ms); err != nil {
-		return fmt.Errorf("discordant context: %w", err)
+		return fmt.Errorf("discordant send: %w", err)
 	}
 
 	return nil

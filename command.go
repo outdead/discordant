@@ -20,7 +20,7 @@ func MiddlewareAccess(access ...string) CommandOption {
 	}
 }
 
-// MiddlewareDescription adds description to command..
+// MiddlewareDescription adds description to command.
 func MiddlewareDescription(description string) CommandOption {
 	return func(c *Command) {
 		c.Description = description

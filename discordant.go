@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/outdead/discordant/internal"
+	"github.com/outdead/discordant/internal/session"
 )
 
 // Channel types.
@@ -46,6 +46,9 @@ var (
 
 	// ErrCommandNotFound is returned if an unknown command was received.
 	ErrCommandNotFound = errors.New("command not found")
+
+	// ErrUnclosedQuote is returned if args has unclosed quote.
+	ErrUnclosedQuote = errors.New("unclosed quote in command line")
 )
 
 // HandlerFunc defines a function to serve HTTP requests.
@@ -55,7 +58,7 @@ type HandlerFunc func(Context) error
 type Discordant struct {
 	config              *Config
 	id                  string
-	session             *internal.Session
+	session             *session.Session
 	logger              Logger
 	commands            map[string]Command
 	commandsAccessOrder []string
@@ -86,7 +89,7 @@ func New(cfg *Config, options ...Option) (*Discordant, error) {
 
 	if d.session == nil {
 		var err error
-		if d.session, err = internal.NewSession(cfg.Token); err != nil {
+		if d.session, err = session.New(cfg.Token); err != nil {
 			return nil, fmt.Errorf("discordant: %w", err)
 		}
 	}
@@ -234,7 +237,7 @@ func (d *Discordant) CheckAccess(id string, channels ...string) bool {
 	return false
 }
 
-func (d *Discordant) commandHandler(session *discordgo.Session, message *discordgo.MessageCreate) {
+func (d *Discordant) commandHandler(message *discordgo.MessageCreate) {
 	// Do nothing because the bot is talking.
 	if message.Author.Bot || message.Author.ID == d.id {
 		return
@@ -248,7 +251,7 @@ func (d *Discordant) commandHandler(session *discordgo.Session, message *discord
 	if d.config.Safemode {
 		// Unknown channel. Do nothing.
 		if !d.CheckAccess(message.ChannelID, ChannelGeneral, ChannelAdmin) {
-			d.logger.Debugf("unknown channel %s", message.ChannelID)
+			d.logger.Debugf("discordant: unknown channel %s", message.ChannelID)
 
 			return
 		}
@@ -265,7 +268,7 @@ func (d *Discordant) commandHandler(session *discordgo.Session, message *discord
 	}
 
 	if ok := d.CheckAccess(message.ChannelID, command.Access...); !ok {
-		d.logger.Debugf("access to command \"%s\" denied", command.Name)
+		d.logger.Debugf("discordant: access to command \"%s\" denied", command.Name)
 
 		return
 	}
@@ -273,10 +276,10 @@ func (d *Discordant) commandHandler(session *discordgo.Session, message *discord
 	ctx := d.NewContext(message, command)
 
 	if err := command.action(ctx); err != nil {
-		d.logger.Error(err)
+		d.logger.Errorf("discordant action: %s", err)
 
 		if err := ctx.Send(ResponseMessageFail); err != nil {
-			d.logger.Errorf("send fail response error: %s", err)
+			d.logger.Errorf("send fail response: %s", err)
 		}
 	}
 }

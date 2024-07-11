@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [v0.3.0] - 2024-07-11
+### Added
+- Added QueryString interface method to context.
+- Added QueryParams interface method to context.
+
+### Updated
+- Updated Golang version to 1.21
+- Updated golangci linter to 1.55.2 version
+
 ## [v0.2.2] - 2022-11-21
 ### Fixed
 - Fixed ALL access router. Custom permission now can be added with this route
