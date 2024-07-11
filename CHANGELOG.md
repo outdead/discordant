@@ -48,7 +48,8 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Initial implementation
 
-[Unreleased]: https://github.com/outdead/discordant/compare/v0.2.2...HEAD
+[Unreleased]: https://github.com/outdead/discordant/compare/v0.3.0...HEAD
+[v0.3.0]: https://github.com/outdead/discordant/compare/v0.2.2...v0.3.0
 [v0.2.2]: https://github.com/outdead/discordant/compare/v0.2.1...v0.2.2
 [v0.2.1]: https://github.com/outdead/discordant/compare/v0.2.0...v0.2.1
 [v0.2.0]: https://github.com/outdead/discordant/compare/v0.1.3...v0.2.0
