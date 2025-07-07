@@ -12,6 +12,12 @@ import (
 // discordMaxMessageLenValidate max discord message length for internal validation.
 const discordMaxMessageLenValidate = 1990
 
+const (
+	stateStart  = "start"
+	stateQuotes = "quotes"
+	stateArg    = "arg"
+)
+
 // Context is an interface represents the context of the current Discord command.
 type Context interface {
 	Command() *Command
@@ -55,16 +61,12 @@ func (c *context) QueryString() string {
 }
 
 // QueryParams returns the query parameters as slice.
-func (c *context) QueryParams() ([]string, error) { //nolint: gocyclo, cyclop, gocognit, funlen, gocritic // indivisible
+func (c *context) QueryParams() ([]string, error) { //nolint: cyclop, funlen // indivisible
 	query := c.Command().Arg
 
 	var args []string
 
-	const StateStart = "start"
-	const StateQuotes = "quotes"
-	const StateArg = "arg"
-
-	state := StateStart
+	state := stateStart
 	current := ""
 	quote := "\""
 	escapeNext := true
@@ -74,13 +76,13 @@ func (c *context) QueryParams() ([]string, error) { //nolint: gocyclo, cyclop, g
 			escapeNext = false
 		}
 
-		if state == StateQuotes {
+		if state == stateQuotes {
 			if string(command) != quote {
 				current += string(command)
 			} else {
 				args = append(args, current)
 				current = ""
-				state = StateStart
+				state = stateStart
 			}
 
 			continue
@@ -100,17 +102,17 @@ func (c *context) QueryParams() ([]string, error) { //nolint: gocyclo, cyclop, g
 		}
 
 		if command == '"' || command == '\'' {
-			state = StateQuotes
+			state = stateQuotes
 			quote = string(command)
 
 			continue
 		}
 
-		if state == StateArg {
+		if state == stateArg {
 			if command == ' ' || command == '\t' {
 				args = append(args, current)
 				current = ""
-				state = StateStart
+				state = stateStart
 			} else {
 				current += string(command)
 			}
@@ -119,12 +121,12 @@ func (c *context) QueryParams() ([]string, error) { //nolint: gocyclo, cyclop, g
 		}
 
 		if command != ' ' && command != '\t' {
-			state = StateArg
+			state = stateArg
 			current += string(command)
 		}
 	}
 
-	if state == StateQuotes {
+	if state == stateQuotes {
 		return []string{}, fmt.Errorf("%w: %s", ErrUnclosedQuote, query)
 	}
 

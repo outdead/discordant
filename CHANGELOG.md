@@ -9,6 +9,10 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 - Fix commandHandler.
 
+### Updated
+- Updated Golang version to 1.23.3
+- Updated golangci linter to 1.62.0 version
+
 ## [v0.3.0] - 2024-07-11
 ### Added
 - Added QueryString interface method to context.
