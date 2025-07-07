@@ -60,22 +60,39 @@ func (c *context) QueryString() string {
 	return c.Command().Arg
 }
 
-// QueryParams returns the query parameters as slice.
+// QueryParams parses the command query string and returns a slice of arguments.
+// It handles quoted arguments (both single and double quotes) and escape characters.
+//
+// The function implements a simple state machine to parse the query string with these rules:
+// 1. Spaces separate arguments unless they're within quotes
+// 2. Both single (') and double (") quotes are supported
+// 3. Backslash (\) can be used to escape special characters
+// 4. Unclosed quotes will return an error
+//
+// Returns:
+//   - []string: slice of parsed arguments
+//   - error: if there's an unclosed quote in the input
+//
+// Note: The function is marked with nolint for cyclop and funlen as the state machine
+// logic is inherently complex but intentionally kept as a single unit for clarity.
 func (c *context) QueryParams() ([]string, error) { //nolint: cyclop, funlen // indivisible
 	query := c.Command().Arg
 
 	var args []string
 
-	state := stateStart
-	current := ""
-	quote := "\""
-	escapeNext := true
+	// State machine states
+	state := stateStart // Initial parsing state
+	current := ""       // Current argument being built
+	quote := "\""       // Type of quote we're currently in (if in quotes)
+	escapeNext := true  // Whether next character should be escaped
 
 	for i, command := range query {
+		// Special case: first character is a quote (disable escaping)
 		if i == 0 && string(command) == `"` {
 			escapeNext = false
 		}
 
+		// When inside quotes, accept all characters until closing quote
 		if state == stateQuotes {
 			if string(command) != quote {
 				current += string(command)
@@ -88,6 +105,7 @@ func (c *context) QueryParams() ([]string, error) { //nolint: cyclop, funlen // 
 			continue
 		}
 
+		// Handle escaped characters
 		if escapeNext {
 			current += string(command)
 			escapeNext = false
@@ -95,12 +113,14 @@ func (c *context) QueryParams() ([]string, error) { //nolint: cyclop, funlen // 
 			continue
 		}
 
+		// Detect escape character
 		if command == '\\' {
 			escapeNext = true
 
 			continue
 		}
 
+		// Detect quote start
 		if command == '"' || command == '\'' {
 			state = stateQuotes
 			quote = string(command)
@@ -108,8 +128,10 @@ func (c *context) QueryParams() ([]string, error) { //nolint: cyclop, funlen // 
 			continue
 		}
 
+		// When in argument (not in quotes)
 		if state == stateArg {
 			if command == ' ' || command == '\t' {
+				// Space ends current argument
 				args = append(args, current)
 				current = ""
 				state = stateStart
@@ -120,16 +142,19 @@ func (c *context) QueryParams() ([]string, error) { //nolint: cyclop, funlen // 
 			continue
 		}
 
+		// Detect start of new argument
 		if command != ' ' && command != '\t' {
 			state = stateArg
 			current += string(command)
 		}
 	}
 
+	// Error if we ended while still inside quotes
 	if state == stateQuotes {
 		return []string{}, fmt.Errorf("%w: %s", ErrUnclosedQuote, query)
 	}
 
+	// Add any remaining argument
 	if current != "" {
 		args = append(args, current)
 	}
