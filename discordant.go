@@ -49,6 +49,9 @@ var (
 
 	// ErrUnclosedQuote is returned if args has unclosed quote.
 	ErrUnclosedQuote = errors.New("unclosed quote in command line")
+
+	// ErrNoAttachment is returned when attempting to access attachments on a message that has none.
+	ErrNoAttachment = errors.New("no attachment")
 )
 
 // HandlerFunc defines a function to serve HTTP requests.

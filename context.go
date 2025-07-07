@@ -3,7 +3,10 @@ package discordant
 import (
 	"bufio"
 	"bytes"
+	ctx "context"
 	"fmt"
+	"io"
+	"net/http"
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
@@ -25,7 +28,8 @@ type Context interface {
 	Request() *discordgo.MessageCreate
 	ChannelID() string
 	QueryString() string
-	QueryParams() ([]string, error)
+	QuerySlice() ([]string, error)
+	QueryAttachmentBodyFirst() (string, error)
 	Send(msg string, params ...string) error
 }
 
@@ -60,7 +64,7 @@ func (c *context) QueryString() string {
 	return c.Command().Arg
 }
 
-// QueryParams parses the command query string and returns a slice of arguments.
+// QuerySlice parses the command query string and returns a slice of arguments.
 // It handles quoted arguments (both single and double quotes) and escape characters.
 //
 // The function implements a simple state machine to parse the query string with these rules:
@@ -75,7 +79,7 @@ func (c *context) QueryString() string {
 //
 // Note: The function is marked with nolint for cyclop and funlen as the state machine
 // logic is inherently complex but intentionally kept as a single unit for clarity.
-func (c *context) QueryParams() ([]string, error) { //nolint: cyclop, funlen // indivisible
+func (c *context) QuerySlice() ([]string, error) { //nolint: cyclop, funlen // indivisible
 	query := c.Command().Arg
 
 	var args []string
@@ -160,6 +164,47 @@ func (c *context) QueryParams() ([]string, error) { //nolint: cyclop, funlen // 
 	}
 
 	return args, nil
+}
+
+// QueryAttachmentBodyFirst retrieves the content of the first attachment from a message.
+// It performs the following operations:
+//  1. Checks if there are any attachments - returns empty string if none exist
+//  2. Fetches the content from the URL of the first attachment
+//  3. Returns the content as a string
+//
+// This is typically used to process message attachments where only the first attachment's
+// content is needed (e.g., processing a single file upload).
+//
+// Returns:
+//   - string: The content of the first attachment as a string
+//   - error: Any error that occurred during the HTTP request or content reading
+//     (network errors, invalid URL, read errors, etc.)
+//
+// The function automatically closes the response body after reading.
+func (c *context) QueryAttachmentBodyFirst() (string, error) {
+	if len(c.Request().Message.Attachments) == 0 {
+		return "", ErrNoAttachment
+	}
+
+	uri := c.Request().Message.Attachments[0].URL
+
+	req, err := http.NewRequestWithContext(ctx.Background(), http.MethodGet, uri, http.NoBody)
+	if err != nil {
+		return "", err
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	buf := &bytes.Buffer{}
+	if _, err := io.Copy(buf, resp.Body); err != nil {
+		return "", err
+	}
+
+	return buf.String(), nil
 }
 
 // Send sends message to discord channel.
