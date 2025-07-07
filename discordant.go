@@ -237,7 +237,7 @@ func (d *Discordant) CheckAccess(id string, channels ...string) bool {
 	return false
 }
 
-func (d *Discordant) commandHandler(message *discordgo.MessageCreate) {
+func (d *Discordant) commandHandler(session *discordgo.Session, message *discordgo.MessageCreate) {
 	// Do nothing because the bot is talking.
 	if message.Author.Bot || message.Author.ID == d.id {
 		return
