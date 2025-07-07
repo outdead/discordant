@@ -81,5 +81,5 @@ func (l *defaultLog) Errorln(args ...interface{}) {
 }
 
 func (l *defaultLog) printf(f string, v ...interface{}) {
-	l.Printf(f, v...)
+	l.Logger.Printf(f, v...)
 }
