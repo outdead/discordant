@@ -50,4 +50,4 @@ jobs:
         uses: ncruces/go-coverage-report@main
 
       - name: Build
-        run: go build -v ./steamwebdraft
+        run: go build -v .
