@@ -32,6 +32,8 @@ type Context interface {
 	QuerySlice() ([]string, error)
 	QueryAttachmentBodyFirst() (string, error)
 	Send(msg string, params ...string) error
+	JSON(rawmsg any, params ...string) error
+	JSONPretty(rawmsg any, params ...string) error
 }
 
 type context struct {

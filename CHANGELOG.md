@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
-## [v0.3.3] - 2025-07-21
+## [v0.3.3] - 2025-07-22
 ### Added
 - Added JSON and JSONPretty response senders to Context.
 
