@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	ctx "context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -251,4 +252,53 @@ func (c *context) Send(msg string, params ...string) error {
 	}
 
 	return nil
+}
+
+// JSON sends a JSON response with the given message/object.
+// It converts the input to JSON format and sends it as a string response.
+// The input can be a string, error, or any type that can be marshaled to JSON.
+// Optional parameters can be provided for additional response configuration.
+func (c *context) JSON(rawmsg any, params ...string) error {
+	return c.json(rawmsg, false, params...)
+}
+
+// JSONPretty sends a JSON response with pretty-printed formatting (indented).
+// Similar to JSON() but outputs human-readable formatted JSON.
+// The input can be a string, error, or any type that can be marshaled to JSON.
+// Optional parameters can be provided for additional response configuration.
+func (c *context) JSONPretty(rawmsg any, params ...string) error {
+	return c.json(rawmsg, true, params...)
+}
+
+// json is the internal implementation for JSON response handling.
+// It handles the conversion of different input types to JSON format and sends the response.
+// The pretty parameter controls whether the JSON output is formatted with indentation.
+func (c *context) json(rawmsg any, pretty bool, params ...string) error {
+	var msg string
+
+	switch val := rawmsg.(type) {
+	case string:
+		msg = fmt.Sprintf(ResponseMessageFormatJSON, val)
+	case error:
+		msg = fmt.Sprintf(ResponseMessageFormatJSON, val.Error())
+	default:
+		var (
+			rawjson []byte
+			err     error
+		)
+
+		if pretty {
+			rawjson, err = json.MarshalIndent(val, "", "  ")
+		} else {
+			rawjson, err = json.Marshal(val)
+		}
+
+		if err != nil {
+			return fmt.Errorf("%w: %w", ErrInvalidResponseMessageType, err)
+		}
+
+		msg = fmt.Sprintf(ResponseMessageFormatJSON, string(rawjson))
+	}
+
+	return c.Send(msg, params...)
 }

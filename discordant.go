@@ -27,6 +27,8 @@ const (
 	ResponseMessageFormatJSON = "```json\n%s\n```"
 )
 
+var ErrInvalidResponseMessageType = errors.New("invalid response message type")
+
 // DiscordMaxMessageLen max discord message length.
 const DiscordMaxMessageLen = 2000
 
