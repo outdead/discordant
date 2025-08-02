@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [v0.3.5] - 2025-08-02
+### Added
+- Added Fail send context function.
+- Added Success send context function.
+- Added Embed send context function.
+- Added Embeds send context function.
+
 ## [v0.3.4] - 2025-08-02
 ### Added
 - Added color, response and validation constants.
@@ -71,7 +78,8 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Initial implementation.
 
-[Unreleased]: https://github.com/outdead/discordant/compare/v0.3.4...HEAD
+[Unreleased]: https://github.com/outdead/discordant/compare/v0.3.5...HEAD
+[v0.3.5]: https://github.com/outdead/discordant/compare/v0.3.4...v0.3.5
 [v0.3.4]: https://github.com/outdead/discordant/compare/v0.3.3...v0.3.4
 [v0.3.3]: https://github.com/outdead/discordant/compare/v0.3.2...v0.3.3
 [v0.3.2]: https://github.com/outdead/discordant/compare/v0.3.1...v0.3.2

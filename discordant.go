@@ -69,6 +69,9 @@ var (
 
 	// ErrInvalidResponseMessageType is returned when trying to send unknown message type.
 	ErrInvalidResponseMessageType = errors.New("invalid response message type")
+
+	// ErrEmptyResponseMessage is returned when trying to send empty message.
+	ErrEmptyResponseMessage = errors.New("empty response message")
 )
 
 // HandlerFunc defines a function to serve HTTP requests.
@@ -298,7 +301,7 @@ func (d *Discordant) commandHandler(_ *discordgo.Session, message *discordgo.Mes
 	if err := command.action(ctx); err != nil {
 		d.logger.Errorf("discordant action: %s", err)
 
-		if err := ctx.Send(ResponseMessageFail); err != nil {
+		if err := ctx.Fail(); err != nil {
 			d.logger.Errorf("send fail response: %s", err)
 		}
 	}

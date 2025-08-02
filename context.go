@@ -29,8 +29,12 @@ type Context interface {
 	QuerySlice() ([]string, error)
 	QueryAttachmentBodyFirst() (string, error)
 	Send(msg string, params ...string) error
+	Success() error
+	Fail() error
 	JSON(rawmsg any, params ...string) error
 	JSONPretty(rawmsg any, params ...string) error
+	Embed(msg *discordgo.MessageEmbed) error
+	Embeds(msgs []discordgo.MessageEmbed) error
 }
 
 type context struct {
@@ -208,14 +212,9 @@ func (c *context) QueryAttachmentBodyFirst() (string, error) {
 }
 
 // Send sends message to discord channel.
-// TODO: Add the option of posting to Discord channel.
 // That is, what to do with messages that more than 2000 characters.
 // 1. Send as file.
-// 2. Send as multiple messages
-// TODO: Add sending format selection.
-// 1. Plaint text - As is.
-// 2. Format JSON ```json\n%s\n```
-// 3. Embed - beautiful.
+// 2. Send as multiple messages.
 func (c *context) Send(msg string, params ...string) error {
 	// Send normal message.
 	if len([]rune(msg)) <= DiscordMaxMessageLenValidate {
@@ -253,6 +252,16 @@ func (c *context) Send(msg string, params ...string) error {
 	return nil
 }
 
+// Success sends a success response message.
+func (c *context) Success() error {
+	return c.Send(ResponseMessageSuccess)
+}
+
+// Fail sends a fail response message.
+func (c *context) Fail() error {
+	return c.Send(ResponseMessageFail)
+}
+
 // JSON sends a JSON response with the given message/object.
 // It converts the input to JSON format and sends it as a string response.
 // The input can be a string, error, or any type that can be marshaled to JSON.
@@ -267,6 +276,32 @@ func (c *context) JSON(rawmsg any, params ...string) error {
 // Optional parameters can be provided for additional response configuration.
 func (c *context) JSONPretty(rawmsg any, params ...string) error {
 	return c.json(rawmsg, true, params...)
+}
+
+// Embed sends a message with embedded data.
+func (c *context) Embed(msg *discordgo.MessageEmbed) error {
+	if _, err := c.discordant.session.ChannelMessageSendEmbed(c.ChannelID(), msg); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Embeds sends messages with embedded data.
+func (c *context) Embeds(msgs []discordgo.MessageEmbed) error {
+	if len(msgs) == 0 {
+		return ErrEmptyResponseMessage
+	}
+
+	for i := range msgs {
+		msg := msgs[i]
+
+		if err := c.Embed(&msg); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 // json is the internal implementation for JSON response handling.
