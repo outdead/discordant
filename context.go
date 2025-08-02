@@ -13,9 +13,6 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-// discordMaxMessageLenValidate max discord message length for internal validation.
-const discordMaxMessageLenValidate = 1990
-
 const (
 	stateStart  = "start"
 	stateQuotes = "quotes"
@@ -221,7 +218,7 @@ func (c *context) QueryAttachmentBodyFirst() (string, error) {
 // 3. Embed - beautiful.
 func (c *context) Send(msg string, params ...string) error {
 	// Send normal message.
-	if len([]rune(msg)) <= discordMaxMessageLenValidate {
+	if len([]rune(msg)) <= DiscordMaxMessageLenValidate {
 		if _, err := c.discordant.session.ChannelMessageSend(c.request.ChannelID, msg); err != nil {
 			return fmt.Errorf("discordant send: %w", err)
 		}

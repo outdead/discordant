@@ -9,6 +9,15 @@ import (
 	"github.com/outdead/discordant/internal/session"
 )
 
+// Validation.
+const (
+	// DiscordMaxMessageLen max discord message length.
+	DiscordMaxMessageLen = 2000
+
+	// DiscordMaxMessageLenValidate max discord message length for internal validation.
+	DiscordMaxMessageLenValidate = 1990
+)
+
 // Channel types.
 const (
 	ChannelAdmin   = "admin"
@@ -24,13 +33,16 @@ const (
 // Response massage layouts.
 const (
 	ResponseMessageFail       = "```fail```"
+	ResponseMessageSuccess    = "```success```"
 	ResponseMessageFormatJSON = "```json\n%s\n```"
 )
 
-var ErrInvalidResponseMessageType = errors.New("invalid response message type")
-
-// DiscordMaxMessageLen max discord message length.
-const DiscordMaxMessageLen = 2000
+// Colors.
+const (
+	ColorGreen  = 0x0008000
+	ColorYellow = 0xffaa00
+	ColorRed    = 0xff0000
+)
 
 var (
 	// ErrEmptyToken is returned when discord bot token is empty with enabled hook.
@@ -54,6 +66,9 @@ var (
 
 	// ErrNoAttachment is returned when attempting to access attachments on a message that has none.
 	ErrNoAttachment = errors.New("no attachment")
+
+	// ErrInvalidResponseMessageType is returned when trying to send unknown message type.
+	ErrInvalidResponseMessageType = errors.New("invalid response message type")
 )
 
 // HandlerFunc defines a function to serve HTTP requests.
